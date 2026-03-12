@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adult Day Care Directory — Centennial &amp; Aurora, CO</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<style>
+/* ===== APPLE VISUAL THEME ===== */
+:root{
+  --apple-blue:#007AFF;--apple-blue-hover:#0056CC;--apple-green:#34C759;
+  --apple-orange:#FF9500;--apple-red:#FF3B30;--apple-gray:#8E8E93;
+  --apple-gray2:#636366;--apple-gray3:#48484A;--apple-gray4:#3A3A3C;
+  --apple-gray5:#2C2C2E;--apple-gray6:#1C1C1E;
+  --bg:#FFFFFF;--bg-secondary:#F2F2F7;--fg:#1C1C1E;--fg-secondary:#3A3A3C;
+  --fg-tertiary:#8E8E93;--surface:#FFFFFF;--surface-elevated:#FFFFFF;
+  --border:rgba(60,60,67,0.12);--border-heavy:rgba(60,60,67,0.2);
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.06);
+  --shadow-lg:0 10px 40px rgba(0,0,0,0.08),0 2px 10px rgba(0,0,0,0.06);
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;--radius-xl:20px;
+  --table-alt:rgba(0,0,0,0.02);--hover-row:rgba(0,122,255,0.04);
+  --selected-row:rgba(0,122,255,0.08);
+  --font:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --font-mono:'SF Mono','Fira Code','Cascadia Code',Consolas,monospace;
+  --vibrancy:saturate(180%) blur(20px);
+  --header-bg:rgba(255,255,255,0.72);
+  --toolbar-bg:rgba(255,255,255,0.8);
+}
+[data-theme="dark"]{
+  --bg:#000000;--bg-secondary:#1C1C1E;--fg:#F5F5F7;--fg-secondary:#A1A1A6;
+  --fg-tertiary:#636366;--surface:#1C1C1E;--surface-elevated:#2C2C2E;
+  --border:rgba(255,255,255,0.1);--border-heavy:rgba(255,255,255,0.16);
+  --shadow:0 1px 3px rgba(0,0,0,0.3),0 1px 2px rgba(0,0,0,0.2);
+  --shadow-lg:0 10px 40px rgba(0,0,0,0.4),0 2px 10px rgba(0,0,0,0.2);
+  --table-alt:rgba(255,255,255,0.03);--hover-row:rgba(0,122,255,0.1);
+  --selected-row:rgba(0,122,255,0.15);
+  --header-bg:rgba(28,28,30,0.72);
+  --toolbar-bg:rgba(28,28,30,0.8);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);color:var(--fg);background:var(--bg-secondary);font-size:14px;line-height:1.47;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;transition:background .3s,color .3s}
+::selection{background:rgba(0,122,255,0.2)}
+
+/* Header — frosted glass */
+.header{background:var(--header-bg);backdrop-filter:var(--vibrancy);-webkit-backdrop-filter:var(--vibrancy);border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:100;padding:16px 24px}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.brand{font-size:22px;font-weight:700;letter-spacing:-0.5px;color:var(--fg)}
+.brand-sub{font-size:13px;color:var(--fg-tertiary);font-weight:400;margin-top:2px}
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* Apple-style buttons */
+.btn{padding:8px 16px;border:none;border-radius:980px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--font);letter-spacing:-0.01em}
+.btn-primary{background:var(--apple-blue);color:#fff}
+.btn-primary:hover{background:var(--apple-blue-hover);transform:scale(1.02)}
+.btn-secondary{background:rgba(0,122,255,0.1);color:var(--apple-blue);border:none}
+.btn-secondary:hover{background:rgba(0,122,255,0.16)}
+.btn-ghost{background:transparent;color:var(--fg-secondary)}
+.btn-ghost:hover{background:var(--hover-row)}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* Theme toggle — Apple style */
+.theme-toggle{background:var(--surface);border:1px solid var(--border);border-radius:980px;padding:6px 14px;color:var(--fg);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;font-family:var(--font)}
+.theme-toggle:hover{background:var(--hover-row)}
+.theme-toggle svg{width:16px;height:16px;fill:currentColor}
+
+/* Segmented control — toolbar */
+.toolbar{max-width:1400px;margin:0 auto;padding:12px 24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--toolbar-bg);backdrop-filter:var(--vibrancy);-webkit-backdrop-filter:var(--vibrancy);border-bottom:0.5px solid var(--border)}
+.search-box{flex:1;min-width:220px;padding:10px 16px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;outline:none;transition:all .2s;background:var(--surface);color:var(--fg);font-family:var(--font)}
+.search-box:focus{border-color:var(--apple-blue);box-shadow:0 0 0 3px rgba(0,122,255,0.15)}
+.search-box::placeholder{color:var(--fg-tertiary)}
+
+/* Apple segmented control */
+.segmented{display:inline-flex;background:var(--bg-secondary);border-radius:var(--radius-sm);padding:2px;gap:0}
+.seg-btn{padding:6px 14px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--fg-secondary);transition:all .2s;font-family:var(--font);white-space:nowrap}
+.seg-btn.active{background:var(--surface-elevated);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+
+/* Filter pills */
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{padding:6px 14px;border:1px solid var(--border);border-radius:980px;font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--fg-secondary);transition:all .15s;font-family:var(--font)}
+.pill:hover{border-color:var(--apple-blue);color:var(--apple-blue)}
+.pill.active{background:var(--apple-blue);color:#fff;border-color:var(--apple-blue)}
+
+/* Stats bar */
+.stats-bar{max-width:1400px;margin:0 auto;padding:10px 24px;display:flex;gap:24px;font-size:13px;color:var(--fg-tertiary);flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:6px}
+.stat-num{font-weight:700;font-size:17px;color:var(--fg);font-variant-numeric:tabular-nums}
+
+/* Main content */
+.main{max-width:1400px;margin:0 auto;padding:20px 24px 80px}
+
+/* Section groups */
+.group-section{margin-bottom:32px}
+.group-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.group-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:980px;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#fff}
+.group-badge.home{background:var(--apple-blue)}
+.group-badge.commute{background:var(--apple-green)}
+.group-title{font-size:17px;font-weight:600;color:var(--fg);letter-spacing:-0.2px}
+.group-count{font-size:13px;color:var(--fg-tertiary)}
+
+/* Table — Apple clean */
+.data-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--surface);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);transition:background .3s}
+.data-table thead th{padding:10px 12px;text-align:left;font-size:11px;font-weight:600;letter-spacing:0.3px;text-transform:uppercase;color:var(--fg-tertiary);background:var(--bg-secondary);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;cursor:pointer;user-select:none}
+.data-table thead th:hover{color:var(--apple-blue)}
+.data-table thead th.sorted-asc::after{content:' \2191';color:var(--apple-blue)}
+.data-table thead th.sorted-desc::after{content:' \2193';color:var(--apple-blue)}
+.data-table td{padding:10px 12px;border-bottom:0.5px solid var(--border);font-size:13px;vertical-align:top;transition:background .1s}
+.data-table tbody tr:last-child td{border-bottom:none}
+.data-table tbody tr:hover{background:var(--hover-row)}
+.data-table tbody tr.selected{background:var(--selected-row)}
+.data-table input[type="checkbox"]{width:16px;height:16px;cursor:pointer;accent-color:var(--apple-blue);border-radius:4px}
+
+/* Cell styles */
+.cell-name{font-weight:600;color:var(--fg);font-size:13px}
+.cell-name a{color:var(--apple-blue);text-decoration:none}
+.cell-name a:hover{text-decoration:underline}
+.cell-addr{font-size:12px;color:var(--fg-secondary);line-height:1.4;max-width:240px}
+.cell-phone{font-size:13px;white-space:nowrap}
+.cell-phone a{color:var(--apple-blue);text-decoration:none}
+.cell-phone a:hover{text-decoration:underline}
+.cell-hours{font-size:12px;color:var(--fg-secondary);max-width:180px;line-height:1.4}
+.cell-services{font-size:11px;color:var(--fg-tertiary);max-width:260px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+
+/* Status badges */
+.badge{display:inline-block;padding:3px 10px;border-radius:980px;font-size:11px;font-weight:600;letter-spacing:0.2px}
+.badge-yes{background:rgba(52,199,89,0.12);color:#248A3D}
+.badge-no{background:rgba(255,59,48,0.12);color:#D70015}
+.badge-unknown{background:rgba(142,142,147,0.12);color:var(--apple-gray)}
+[data-theme="dark"] .badge-yes{background:rgba(52,199,89,0.2);color:#30D158}
+[data-theme="dark"] .badge-no{background:rgba(255,59,48,0.2);color:#FF453A}
+[data-theme="dark"] .badge-unknown{background:rgba(142,142,147,0.2);color:#98989D}
+
+/* Distance badge */
+.dist{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px;color:var(--fg)}
+.dist-unit{font-weight:400;font-size:11px;color:var(--fg-tertiary)}
+
+/* Confidence indicator */
+.conf{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.conf-high{color:var(--apple-green)}
+.conf-medium{color:var(--apple-orange)}
+.conf-low{color:var(--apple-red)}
+
+/* Selection bar */
+.selection-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface-elevated);border-top:0.5px solid var(--border);padding:12px 24px;display:none;align-items:center;justify-content:center;gap:16px;z-index:100;backdrop-filter:var(--vibrancy);-webkit-backdrop-filter:var(--vibrancy)}
+.selection-bar.visible{display:flex}
+.sel-count{font-weight:700;font-size:14px;color:var(--fg)}
+
+/* Export modal — Apple sheet style */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:200}
+.modal-overlay.visible{display:flex}
+.modal{background:var(--surface-elevated);border-radius:var(--radius-lg);padding:28px;width:100%;max-width:480px;box-shadow:var(--shadow-lg);color:var(--fg)}
+.modal h2{font-size:20px;font-weight:700;letter-spacing:-0.3px;margin-bottom:4px}
+.modal p{color:var(--fg-tertiary);font-size:13px;margin-bottom:20px}
+.export-options{display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
+.export-opt{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .15s}
+.export-opt:hover{border-color:var(--apple-blue);background:var(--hover-row)}
+.export-opt.checked{border-color:var(--apple-blue);background:var(--selected-row)}
+.export-opt input{accent-color:var(--apple-blue)}
+.export-opt label{cursor:pointer;flex:1}
+.export-opt .fmt{font-weight:600;font-size:14px;color:var(--fg)}
+.export-opt .desc{font-size:11px;color:var(--fg-tertiary)}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end}
+
+/* Responsive */
+@media(max-width:1100px){
+  .header-inner{flex-direction:column;align-items:flex-start}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .data-table{font-size:12px}
+  .data-table th,.data-table td{padding:8px 8px}
+}
+@media(max-width:768px){
+  .header{padding:12px 16px}
+  .toolbar{padding:10px 16px}
+  .main{padding:12px 16px 80px}
+  .stats-bar{padding:8px 16px}
+  .data-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+
+/* Print */
+@media print{
+  .header,.toolbar,.selection-bar,.modal-overlay,.header-actions,.stats-bar{display:none!important}
+  .data-table{box-shadow:none;font-size:10px}
+  .main{padding:0}
+  body{background:#fff;color:#000}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <div class="brand">Adult Day Care Directory</div>
+      <div class="brand-sub">Centennial &amp; Aurora, CO | Updated March 2026</div>
+    </div>
+    <div class="header-actions">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+        <svg id="themeIcon" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+        <span id="themeLabel">Dark</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="selectAll()">Select All</button>
+      <button class="btn btn-ghost btn-sm" onclick="deselectAll()">Clear</button>
+      <button class="btn btn-primary btn-sm" onclick="openExport()">Export</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <input type="text" class="search-box" id="search" placeholder="Search by name, address, services, phone...">
+  <div class="filter-pills">
+    <button class="pill active" data-filter="all" onclick="setFilter('all',this)">All</button>
+    <button class="pill" data-filter="group1" onclick="setFilter('group1',this)">Within 10 mi of Home</button>
+    <button class="pill" data-filter="group2" onclick="setFilter('group2',this)">I-225 Commute Corridor</button>
+    <button class="pill" data-filter="newpatients" onclick="setFilter('newpatients',this)">Accepting New Patients</button>
+    <button class="pill" data-filter="privatepay" onclick="setFilter('privatepay',this)">Private Pay</button>
+    <button class="pill" data-filter="highconf" onclick="setFilter('highconf',this)">High Confidence</button>
+  </div>
+  <div class="segmented">
+    <button class="seg-btn active" onclick="setSort('distance',this)">Distance</button>
+    <button class="seg-btn" onclick="setSort('name',this)">Name</button>
+    <button class="seg-btn" onclick="setSort('hours',this)">Hours</button>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar" id="statsBar"></div>
+
+<!-- MAIN CONTENT -->
+<div class="main" id="mainContent"></div>
+
+<!-- SELECTION BAR -->
+<div class="selection-bar" id="selectionBar">
+  <span class="sel-count" id="selCount">0 selected</span>
+  <button class="btn btn-primary btn-sm" onclick="openExport()">Export Selected</button>
+  <button class="btn btn-ghost btn-sm" onclick="deselectAll()">Clear</button>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal">
+    <h2>Export Directory</h2>
+    <p>Choose one or more formats. Selected facilities will be exported.</p>
+    <div class="export-options">
+      <label class="export-opt" onclick="this.querySelector('input').click()">
+        <input type="checkbox" name="fmt" value="csv" checked> <div><div class="fmt">CSV</div><div class="desc">Spreadsheet-compatible table</div></div>
+      </label>
+      <label class="export-opt checked" onclick="this.querySelector('input').click()">
+        <input type="checkbox" name="fmt" value="md" checked> <div><div class="fmt">Markdown</div><div class="desc">GitHub-ready table format</div></div>
+      </label>
+      <label class="export-opt" onclick="this.querySelector('input').click()">
+        <input type="checkbox" name="fmt" value="json"> <div><div class="fmt">JSON</div><div class="desc">Structured data for APIs</div></div>
+      </label>
+      <label class="export-opt" onclick="this.querySelector('input').click()">
+        <input type="checkbox" name="fmt" value="html"> <div><div class="fmt">HTML</div><div class="desc">Standalone web page</div></div>
+      </label>
+      <label class="export-opt" onclick="this.querySelector('input').click()">
+        <input type="checkbox" name="fmt" value="tex"> <div><div class="fmt">LaTeX</div><div class="desc">Typeset-quality document source</div></div>
+      </label>
+      <label class="export-opt" onclick="this.querySelector('input').click()">
+        <input type="checkbox" name="fmt" value="pdf"> <div><div class="fmt">PDF</div><div class="desc">Print-ready document</div></div>
+      </label>
+      <label class="export-opt" onclick="this.querySelector('input').click()">
+        <input type="checkbox" name="fmt" value="zip"> <div><div class="fmt">ZIP Bundle</div><div class="desc">All formats in one download</div></div>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeExport()">Cancel</button>
+      <button class="btn btn-primary" onclick="runExport()">Export</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const HOME_ADDR = '6389 E Irwin Pl, Centennial, CO 80112';
+const HOSPITAL_ADDR = "Children's Hospital Colorado, 13123 E 16th Ave, Aurora, CO 80045";
+const ALL_DATA = [{"id": 1, "group": 1, "name": "Mairik Adult Day Care", "address": "7255 S. Havana St. Suite 130, Centennial, CO 80112", "phone": "(303) 736-2466", "hours": "Mon-Sat (call for specific hours)", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Adult day program, unskilled/non-medical care; serves I/DD, physical disabilities, mental health, ADL assistance, deaf/hard of hearing", "website": "", "distance_mi": 0.8, "confidence": "HIGH", "notes": "Closest facility — same zip code. Contact: Irina Matevosyants, mairikdaycare@gmail.com"}, {"id": 2, "group": 1, "name": "Someren Glen Adult Day Services", "address": "5000 E. Arapahoe Rd., Centennial, CO 80122", "phone": "(303) 779-5000", "hours": "Mon-Fri, 9:00 AM - 4:00 PM", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Memory care day program for early-stage memory loss/dementia; faith-based nonprofit (Christian Living Communities); also offers residential, assisted living, skilled nursing on campus", "website": "https://www.somerenglen.org/living-options/adult-day-services/", "distance_mi": 2.8, "confidence": "HIGH", "notes": "Well-established nonprofit campus with multiple care levels"}, {"id": 3, "group": 1, "name": "Alpine Adult Day Care", "address": "1985 S. Havana St., Aurora, CO 80014", "phone": "(303) 755-8002", "hours": "Mon-Fri, 8:00 AM - 4:00 PM", "new_patients": "Y", "private_pay": "Y", "services": "Elderly and disabled care; specialized habilitation; brain injury certified; hot meals, transportation, fitness/recreation, RN/CNA on staff, video monitoring, outings", "website": "https://www.alpineadultdaycare.com/", "distance_mi": 4.5, "confidence": "HIGH", "notes": "Free trial day offered. Also accepts Medicaid and VA benefits"}, {"id": 4, "group": 1, "name": "Adult Day Care Services of Colorado", "address": "15111 E. Hampden Ave., Aurora, CO 80014", "phone": "(720) 484-6143", "hours": "Mon-Fri, 8:00 AM - 3:00 PM", "new_patients": "Unknown", "private_pay": "Y", "services": "Recreation program, social involvement, independence-focused activities; described as one of the best recreation programs in Denver Metro area", "website": "https://adcsofcolorado.com/", "distance_mi": 5.2, "confidence": "HIGH", "notes": "Very affordable private pay rates for those not on Medicaid"}, {"id": 5, "group": 1, "name": "Prestige Senior Social Club Adult Day Care", "address": "2680 S. Havana St. Unit C, Aurora, CO 80014", "phone": "(720) 476-3898", "hours": "Mon-Fri, 8:00 AM - 5:00 PM", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Door-to-door transportation, therapeutic/recreational activities, physical exercise, field trips, beauty services (skin therapy, massage, hairdressing), meals (breakfast, snack, lunch)", "website": "https://www.prestigeadc.com/", "distance_mi": 4.5, "confidence": "HIGH", "notes": "Active 5-star Google/Facebook reviews suggest operational"}, {"id": 6, "group": 1, "name": "Colorado Spirit Adult Day Care Services", "address": "10610 E. Bethany Dr., Unit A, Aurora, CO 80014", "phone": "(303) 745-3344", "hours": "Call for hours", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Personal care services, nutritious meals, English/computer classes, yoga, outings, hair services, theatrical activities", "website": "http://www.colorado-spirit.com/adultdaycare.html", "distance_mi": 5.8, "confidence": "HIGH", "notes": ""}, {"id": 7, "group": 1, "name": "Comfort Adult Day Care", "address": "10691 E. Bethany Dr., Suite 900, Aurora, CO 80014", "phone": "(303) 632-6794", "hours": "Mon-Sat, 8:00 AM - 4:00 PM", "new_patients": "Unknown", "private_pay": "Y", "services": "Transportation, meals, entertainment", "website": "https://comfortadultdaycare.com/", "distance_mi": 5.8, "confidence": "MEDIUM", "notes": "Website may redirect; call directly"}, {"id": 8, "group": 1, "name": "Hans Adult Daycare LLC", "address": "911 S. Havana St., Suite A, Aurora, CO 80012", "phone": "(720) 641-5430", "hours": "Mon-Fri, 9:00 AM - 5:00 PM", "new_patients": "Unknown", "private_pay": "Y", "services": "Transportation, nutritional meals, exercise/dance (senior yoga, line dancing), educational classes (calligraphy, English, smartphone training), karaoke, bingo, nursing staff", "website": "https://hansadultdaycare.com/", "distance_mi": 6.2, "confidence": "HIGH", "notes": ""}, {"id": 9, "group": 1, "name": "2nd Home Community — Iliff", "address": "10730 E. Iliff Ave., Aurora, CO 80014", "phone": "(720) 281-1536", "hours": "Mon-Fri, 8:00 AM - 4:00 PM", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Multilingual staff (English, Korean, Spanish, Russian, Arabic); social activities, meals, transportation, personal care, memory care", "website": "https://www.2ndhomecommunity.com/", "distance_mi": 5.5, "confidence": "HIGH", "notes": "Medicaid free; call for private pay rates. Medicare accepted"}, {"id": 10, "group": 1, "name": "2nd Home Community — Peoria", "address": "2990 S. Peoria St., Aurora, CO 80014", "phone": "(720) 281-1536", "hours": "Mon-Fri, 8:00 AM - 4:00 PM", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Multilingual staff (English, Korean, Spanish, Russian, Arabic); social activities, meals, transportation, personal care, memory care", "website": "https://www.2ndhomecommunity.com/", "distance_mi": 7.2, "confidence": "HIGH", "notes": "Same operator as Iliff location"}, {"id": 11, "group": 1, "name": "2nd Home Community — Parker", "address": "3138 S. Parker Rd., Aurora, CO 80014", "phone": "(720) 417-1261", "hours": "Mon-Fri, 8:00 AM - 4:30 PM", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Multilingual staff (English, Korean, Spanish, Russian, Arabic); social activities, meals, transportation, personal care, memory care", "website": "https://www.2ndhomecommunity.com/", "distance_mi": 7.0, "confidence": "HIGH", "notes": "Same operator as Iliff location"}, {"id": 12, "group": 1, "name": "2nd Home Community — Abilene", "address": "1200 S. Abilene St., Unit C, Aurora, CO 80012", "phone": "(720) 795-6140", "hours": "Mon-Fri, 8:00 AM - 4:00 PM", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Multilingual staff (English, Korean, Spanish, Russian, Arabic); social activities, meals, transportation, personal care, memory care", "website": "https://www.2ndhomecommunity.com/", "distance_mi": 8.2, "confidence": "HIGH", "notes": "Same operator as Iliff location"}, {"id": 13, "group": 1, "name": "Happy Living and Wellness Adult Daycare", "address": "14015 E. Evans Ave., Aurora, CO 80014", "phone": "(720) 390-5697", "hours": "Mon-Fri, 7:30 AM - 2:30 PM", "new_patients": "Unknown", "private_pay": "Y", "services": "Culturally responsive programs for Chinese-speaking elders (serving since 2016); meals, tai chi, field trips, mahjong, structured schedules, birthday celebrations. Wheelchair accessible", "website": "https://www.happylivingadultdaycare.com/", "distance_mi": 6.3, "confidence": "HIGH", "notes": "Chinese-language focus"}, {"id": 14, "group": 1, "name": "Paradise Senior Daycare (Comport Paradise)", "address": "5280 S. Jebel St., Aurora, CO 80015", "phone": "(720) 220-1377", "hours": "Mon-Sat, 8:00 AM - 4:00 PM", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Adult day care, Medicaid certified", "website": "https://paradiseseniordaycare.com/", "distance_mi": 7.8, "confidence": "MEDIUM", "notes": "Website was unreachable during research; call directly"}, {"id": 15, "group": 1, "name": "Compassion Adult Daycare", "address": "1740 S. Buckley Rd. #11, Aurora, CO 80017", "phone": "(720) 427-8977", "hours": "Mon-Fri, 8:00 AM - 4:00 PM", "new_patients": "Unknown", "private_pay": "Y", "services": "Adult day care, disability services, care services", "website": "https://compassioncolorado.com/", "distance_mi": 8.5, "confidence": "MEDIUM", "notes": ""}, {"id": 16, "group": 1, "name": "Flatirons Adult Day Care", "address": "15433 E. Hampden Ave., Suite D, Aurora, CO 80013", "phone": "(720) 536-8961", "hours": "Mon-Fri, 8:00 AM - 4:00 PM", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Social support, nutritional meals, recreational activities, education and skill building; non-residential", "website": "https://flatironsadultdaycenter.com/", "distance_mi": 6.2, "confidence": "HIGH", "notes": "Aurora location (separate Broomfield location exists)"}, {"id": 17, "group": 1, "name": "New Day In-Home and Respite Services", "address": "20971 E. Smoky Hill Rd., Suite 101, Centennial, CO 80015", "phone": "(303) 841-1399", "hours": "Mon-Thu, 9:00 AM - 3:30 PM", "new_patients": "Unknown", "private_pay": "Y", "services": "Day programs for developmental disabilities; in-home support, respite services, companionship, meal prep, personal care. 365 days/year including weekends", "website": "https://newdayinhome.com/", "distance_mi": 8.9, "confidence": "HIGH", "notes": "Primarily I/DD-focused; confirm whether they serve seniors with non-I/DD needs"}, {"id": 18, "group": 1, "name": "Johnson Adult Day Program", "address": "3444 S. Emerson St., Englewood, CO 80113", "phone": "(800) 558-0653", "hours": "Call for hours", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Designed for individuals with dementia; programs to keep patients occupied and entertained", "website": "https://www.caring.com/senior-living/colorado/englewood/johnson-adult-day-program", "distance_mi": 9.5, "confidence": "LOW", "notes": "Single source (Caring.com); InnovAge connection unverified. Phone is Caring.com advisor line — call facility directly"}, {"id": 19, "group": 2, "name": "Apex Adult Day Services", "address": "562 Sable Blvd., Unit 150, Aurora, CO 80011", "phone": "(720) 449-2682", "hours": "Mon-Fri, 8:00 AM - 4:00 PM", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Affordable day services for adults with physical, developmental, cognitive, and intellectual impairments; medication management, meal service, transportation via shuttle, games, trivia", "website": "https://apexadsco.com/", "distance_mi": 11.5, "confidence": "HIGH", "notes": "~1 mile east of I-225 at Alameda Ave. Contact: marym@apex-adsco.com"}, {"id": 20, "group": 2, "name": "Venezia Innovative Services — Adult Day Program", "address": "15343 E. 6th Ave., Aurora, CO 80011", "phone": "(303) 537-7078", "hours": "Mon-Fri, 8:30 AM - 6:00 PM", "new_patients": "Unknown", "private_pay": "Y", "services": "Meals, wellness checks, transportation, medication administration; serves seniors and blind/disabled individuals; I/DD and behavioral/emotional disorders", "website": "http://www.veneziais.org/", "distance_mi": 12.5, "confidence": "HIGH", "notes": "~2.5 miles east of I-225 near E. 6th Ave exit. SSL expired on website — call directly. Executive Director: Love Dzakpasu"}, {"id": 21, "group": 2, "name": "InnovAge Colorado PACE Center — Aurora", "address": "3551 N. Chambers Rd., Aurora, CO 80011", "phone": "(303) 502-9433", "hours": "Mon-Fri, 8:00 AM - 5:00 PM", "new_patients": "Y", "private_pay": "N", "services": "All-inclusive PACE care: medical services, PT, OT, speech therapy, behavioral health, nutrition, social engagement, rehab, bingo, themed outings. Requires age 55+, Medicaid/Medicare eligible", "website": "https://www.innovage.com/locations/colorado/aurora", "distance_mi": 12.8, "confidence": "HIGH", "notes": "PACE program — Medicare/Medicaid ONLY, does NOT accept private pay. Included for awareness only"}, {"id": 22, "group": 2, "name": "Seniors' Choice Adult Day Program", "address": "14280 E. Jewell Ave. #B, Aurora, CO 80012", "phone": "(303) 344-0046", "hours": "Mon-Thu, 8:00 AM - 6:00 PM", "new_patients": "Unknown", "private_pay": "Y", "services": "Day activities, home and community support, safe/supportive environment for seniors of all abilities; supported employment program; Medicaid waiver accepted", "website": "https://www.continuumcolo.org/services/seniors-choice-activities/", "distance_mi": 9.5, "confidence": "HIGH", "notes": "Operated by Continuum of Colorado. ~2 miles east of I-225. Two addresses listed — confirm current location"}, {"id": 23, "group": 2, "name": "World Wide Adult Day Care and Transportation", "address": "10890 E. Dartmouth Ave., Unit I, Aurora, CO 80014", "phone": "(303) 815-6285", "hours": "Call for hours", "new_patients": "Y", "private_pay": "Unknown", "services": "Specialized adult day services; 15 years of experience; tailored programs, activities, compassionate support, home care and transportation", "website": "https://worldwideadultdaycare.com/", "distance_mi": 6.5, "confidence": "MEDIUM", "notes": "Free trial day offered. ~3 miles east of I-225. Listed as Denver CO 80014 but is Aurora"}, {"id": 24, "group": 2, "name": "Aurora Adult Day Care LLC", "address": "1330 S. Potomac St., Suite 118, Aurora, CO 80012", "phone": "(720) 484-5706", "hours": "Mon-Fri, 8:00 AM - 4:00 PM", "new_patients": "Y", "private_pay": "Unknown", "services": "Physical/mental activities, group activities/socialization, freshly prepared meals, transportation, monthly excursions to museums, parks, cultural events", "website": "https://auroraadultdaycarellc.com/", "distance_mi": 8.8, "confidence": "HIGH", "notes": "Contact for tours. ~1 mile west of I-225. Email: auroraadcllc@gmail.com"}, {"id": 25, "group": 2, "name": "Everest Adult Day Care LLC", "address": "12201 E. Mississippi Ave., Unit 101, Aurora, CO 80012", "phone": "(720) 612-7854", "hours": "Call for hours", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Music therapy, art classes, games, exercise, meals, transportation", "website": "https://www.everesthomellc.com/everest-adult-daycare", "distance_mi": 10.2, "confidence": "MEDIUM", "notes": "~1.5 miles east of I-225"}, {"id": 26, "group": 2, "name": "Relax Adult Day Care", "address": "1042-1044 S. Peoria St., Aurora, CO 80012", "phone": "(303) 758-0871", "hours": "Mon-Fri, 8:00 AM - 5:00 PM (Fri until 4:30 PM)", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Personalized care, meals, transportation", "website": "", "distance_mi": 8.5, "confidence": "LOW", "notes": "Single directory listing only"}, {"id": 27, "group": 2, "name": "BMH Corp. LLC", "address": "13140 E. Mississippi Ave., Aurora, CO 80012", "phone": "(720) 282-3578", "hours": "Mon-Fri and Sun, 8:30 AM - 3:00 PM", "new_patients": "Unknown", "private_pay": "Unknown", "services": "Compassionate elderly care", "website": "https://www.bmhcorp.org/", "distance_mi": 10.3, "confidence": "LOW", "notes": "Single directory listing only"}];
+
+let currentFilter = 'all';
+let currentSort = 'distance';
+let selectedIds = new Set();
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function getFiltered() {
+  let items = [...ALL_DATA];
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  if (q) {
+    items = items.filter(d =>
+      (d.name||'').toLowerCase().includes(q) ||
+      (d.address||'').toLowerCase().includes(q) ||
+      (d.services||'').toLowerCase().includes(q) ||
+      (d.phone||'').toLowerCase().includes(q) ||
+      (d.notes||'').toLowerCase().includes(q)
+    );
+  }
+  switch (currentFilter) {
+    case 'group1': items = items.filter(d => d.group === 1); break;
+    case 'group2': items = items.filter(d => d.group === 2); break;
+    case 'newpatients': items = items.filter(d => d.new_patients === 'Y'); break;
+    case 'privatepay': items = items.filter(d => d.private_pay === 'Y'); break;
+    case 'highconf': items = items.filter(d => d.confidence === 'HIGH'); break;
+  }
+  switch (currentSort) {
+    case 'distance': items.sort((a,b) => a.distance_mi - b.distance_mi); break;
+    case 'name': items.sort((a,b) => a.name.localeCompare(b.name)); break;
+    case 'hours': items.sort((a,b) => (a.hours||'').localeCompare(b.hours||'')); break;
+  }
+  return items;
+}
+
+function badgeFor(val) {
+  if (val === 'Y') return '<span class="badge badge-yes">Yes</span>';
+  if (val === 'N') return '<span class="badge badge-no">No</span>';
+  return '<span class="badge badge-unknown">Unknown</span>';
+}
+
+function confFor(val) {
+  const cls = val === 'HIGH' ? 'conf-high' : val === 'MEDIUM' ? 'conf-medium' : 'conf-low';
+  return `<span class="conf ${cls}">${esc(val)}</span>`;
+}
+
+function buildTable(items) {
+  if (!items.length) return '<p style="text-align:center;color:var(--fg-tertiary);padding:40px">No facilities match your filters.</p>';
+  let h = `<table class="data-table">
+  <thead><tr>
+    <th style="width:32px"><input type="checkbox" id="checkAll" onchange="toggleAll(this.checked)"></th>
+    <th>Facility Name</th>
+    <th>Address</th>
+    <th>Phone</th>
+    <th>Hours</th>
+    <th>New Patients</th>
+    <th>Private Pay</th>
+    <th>Distance</th>
+    <th>Services</th>
+    <th>Confidence</th>
+  </tr></thead><tbody>`;
+  for (const d of items) {
+    const checked = selectedIds.has(d.id) ? 'checked' : '';
+    const selClass = selectedIds.has(d.id) ? ' selected' : '';
+    const nameCell = d.website
+      ? `<a href="${esc(d.website)}" target="_blank" rel="noopener">${esc(d.name)}</a>`
+      : esc(d.name);
+    h += `<tr class="${selClass}" data-id="${d.id}">
+      <td><input type="checkbox" ${checked} onchange="toggleSelect(${d.id},this.checked)"></td>
+      <td><div class="cell-name">${nameCell}</div></td>
+      <td><div class="cell-addr">${esc(d.address)}</div></td>
+      <td><div class="cell-phone"><a href="tel:${d.phone.replace(/[^+\d]/g,'')}">${esc(d.phone)}</a></div></td>
+      <td><div class="cell-hours">${esc(d.hours)}</div></td>
+      <td>${badgeFor(d.new_patients)}</td>
+      <td>${badgeFor(d.private_pay)}</td>
+      <td><span class="dist">${d.distance_mi}</span> <span class="dist-unit">mi</span></td>
+      <td><div class="cell-services" title="${esc(d.services)}">${esc(d.services)}</div></td>
+      <td>${confFor(d.confidence)}</td>
+    </tr>`;
+  }
+  h += '</tbody></table>';
+  return h;
+}
+
+function render() {
+  const items = getFiltered();
+  const main = document.getElementById('mainContent');
+  const g1 = items.filter(d => d.group === 1);
+  const g2 = items.filter(d => d.group === 2);
+
+  let out = '';
+  if (currentFilter === 'all' || currentFilter === 'group1' || currentFilter === 'newpatients' || currentFilter === 'privatepay' || currentFilter === 'highconf') {
+    if (g1.length) {
+      out += `<div class="group-section">
+        <div class="group-header">
+          <span class="group-badge home">Within 10 mi</span>
+          <span class="group-title">Near Home — ${esc(HOME_ADDR)}</span>
+          <span class="group-count">${g1.length} facilities</span>
+        </div>
+        ${buildTable(g1)}
+      </div>`;
+    }
+  }
+  if (currentFilter === 'all' || currentFilter === 'group2' || currentFilter === 'newpatients' || currentFilter === 'privatepay' || currentFilter === 'highconf') {
+    if (g2.length) {
+      out += `<div class="group-section">
+        <div class="group-header">
+          <span class="group-badge commute">I-225 Corridor</span>
+          <span class="group-title">Commute to ${esc(HOSPITAL_ADDR)}</span>
+          <span class="group-count">${g2.length} facilities</span>
+        </div>
+        ${buildTable(g2)}
+      </div>`;
+    }
+  }
+  if (!g1.length && !g2.length) {
+    out = '<p style="text-align:center;color:var(--fg-tertiary);padding:60px 20px;font-size:15px">No facilities match your current filters.</p>';
+  }
+  main.innerHTML = out;
+
+  // Stats
+  const total = items.length;
+  const accepting = items.filter(d => d.new_patients === 'Y').length;
+  const ppay = items.filter(d => d.private_pay === 'Y').length;
+  const avgDist = total ? (items.reduce((s,d) => s + d.distance_mi, 0) / total).toFixed(1) : '—';
+  document.getElementById('statsBar').innerHTML =
+    `<div class="stat"><span class="stat-num">${total}</span><span>Facilities</span></div>` +
+    `<div class="stat"><span class="stat-num">${accepting}</span><span>Accepting New Patients</span></div>` +
+    `<div class="stat"><span class="stat-num">${ppay}</span><span>Private Pay Confirmed</span></div>` +
+    `<div class="stat"><span class="stat-num">${avgDist}</span><span>Avg Distance (mi)</span></div>`;
+
+  updateSelectionBar();
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function setSort(s, btn) {
+  currentSort = s;
+  document.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function toggleSelect(id, checked) {
+  if (checked) selectedIds.add(id); else selectedIds.delete(id);
+  render();
+}
+
+function toggleAll(checked) {
+  const items = getFiltered();
+  items.forEach(d => { if (checked) selectedIds.add(d.id); else selectedIds.delete(d.id); });
+  render();
+}
+
+function selectAll() { ALL_DATA.forEach(d => selectedIds.add(d.id)); render(); }
+function deselectAll() { selectedIds.clear(); render(); }
+
+function updateSelectionBar() {
+  const bar = document.getElementById('selectionBar');
+  const count = selectedIds.size;
+  document.getElementById('selCount').textContent = `${count} selected`;
+  bar.classList.toggle('visible', count > 0);
+}
+
+function getSelectedProviders() {
+  if (selectedIds.size === 0) return getFiltered();
+  return ALL_DATA.filter(d => selectedIds.has(d.id));
+}
+
+// === THEME ===
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeLabel').textContent = isDark ? 'Dark' : 'Light';
+  document.getElementById('themeIcon').innerHTML = isDark
+    ? '<path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>'
+    : '<path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0-4a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0V4a1 1 0 0 1 1-1zm0 16a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0v-1a1 1 0 0 1 1-1zm9-9a1 1 0 0 1 0 2h-1a1 1 0 0 1 0-2h1zM4 11a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2h1zm14.36-5.64a1 1 0 0 1 0 1.41l-.7.71a1 1 0 1 1-1.42-1.42l.71-.7a1 1 0 0 1 1.41 0zM7.05 16.95a1 1 0 0 1 0 1.41l-.7.71a1 1 0 1 1-1.42-1.42l.71-.7a1 1 0 0 1 1.41 0zm11.31 2.12a1 1 0 0 1-1.41 0l-.71-.7a1 1 0 1 1 1.42-1.42l.7.71a1 1 0 0 1 0 1.41zM7.05 7.05a1 1 0 0 1-1.41 0l-.71-.7a1 1 0 0 1 1.42-1.42l.7.71a1 1 0 0 1 0 1.41z"/>';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+}
+(function(){
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('themeLabel').textContent = 'Light';
+    document.getElementById('themeIcon').innerHTML = '<path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0-4a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0V4a1 1 0 0 1 1-1zm0 16a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0v-1a1 1 0 0 1 1-1zm9-9a1 1 0 0 1 0 2h-1a1 1 0 0 1 0-2h1zM4 11a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2h1zm14.36-5.64a1 1 0 0 1 0 1.41l-.7.71a1 1 0 1 1-1.42-1.42l.71-.7a1 1 0 0 1 1.41 0zM7.05 16.95a1 1 0 0 1 0 1.41l-.7.71a1 1 0 1 1-1.42-1.42l.71-.7a1 1 0 0 1 1.41 0zm11.31 2.12a1 1 0 0 1-1.41 0l-.71-.7a1 1 0 1 1 1.42-1.42l.7.71a1 1 0 0 1 0 1.41zM7.05 7.05a1 1 0 0 1-1.41 0l-.71-.7a1 1 0 0 1 1.42-1.42l.7.71a1 1 0 0 1 0 1.41z"/>';
+  }
+})();
+
+// === EXPORT MODAL ===
+function openExport() { document.getElementById('exportModal').classList.add('visible'); }
+function closeExport() { document.getElementById('exportModal').classList.remove('visible'); }
+document.getElementById('exportModal').addEventListener('click', e => { if (e.target === document.getElementById('exportModal')) closeExport(); });
+
+// === EXPORT GENERATORS ===
+function generateCSV(items) {
+  const headers = ['Group','Facility Name','Address','Phone','Hours','New Patients','Private Pay','Distance (mi)','Services','Website','Confidence','Notes'];
+  const rows = items.map(d => [
+    d.group === 1 ? 'Within 10 mi of Home' : 'I-225 Commute Corridor',
+    d.name, d.address, d.phone, d.hours,
+    d.new_patients, d.private_pay, d.distance_mi,
+    d.services, d.website || '', d.confidence, d.notes || ''
+  ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+  return [headers.join(','), ...rows].join('\n');
+}
+
+function generateMarkdown(items) {
+  let md = '# Adult Day Care Directory — Centennial & Aurora, CO\n\n';
+  md += `> Home: ${HOME_ADDR}\n`;
+  md += `> Destination: ${HOSPITAL_ADDR}\n`;
+  md += `> Generated: ${new Date().toLocaleDateString()}\n\n`;
+
+  const g1 = items.filter(d => d.group === 1);
+  const g2 = items.filter(d => d.group === 2);
+
+  if (g1.length) {
+    md += '## Group 1: Within 10 Miles of Home\n\n';
+    md += '| Facility | Address | Phone | Hours | New Patients | Private Pay | Distance | Confidence |\n';
+    md += '|----------|---------|-------|-------|:------------:|:-----------:|:--------:|:----------:|\n';
+    g1.forEach(d => {
+      md += `| ${d.name} | ${d.address} | ${d.phone} | ${d.hours} | ${d.new_patients} | ${d.private_pay} | ${d.distance_mi} mi | ${d.confidence} |\n`;
+    });
+    md += '\n';
+  }
+  if (g2.length) {
+    md += '## Group 2: I-225 Commute Corridor (Within 5 mi)\n\n';
+    md += '| Facility | Address | Phone | Hours | New Patients | Private Pay | Distance | Confidence |\n';
+    md += '|----------|---------|-------|-------|:------------:|:-----------:|:--------:|:----------:|\n';
+    g2.forEach(d => {
+      md += `| ${d.name} | ${d.address} | ${d.phone} | ${d.hours} | ${d.new_patients} | ${d.private_pay} | ${d.distance_mi} mi | ${d.confidence} |\n`;
+    });
+    md += '\n';
+  }
+  md += '---\n*MIT License | Generated by AEPT-AI*\n';
+  return md;
+}
+
+function generateJSON(items) {
+  return JSON.stringify({
+    title: 'Adult Day Care Directory — Centennial & Aurora, CO',
+    home_address: HOME_ADDR,
+    destination: HOSPITAL_ADDR,
+    generated: new Date().toISOString(),
+    total: items.length,
+    group_1_within_10mi: items.filter(d => d.group === 1),
+    group_2_commute_corridor: items.filter(d => d.group === 2)
+  }, null, 2);
+}
+
+function generateHTML(items) {
+  let h = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Adult Day Care Directory</title>
+<style>body{font-family:-apple-system,sans-serif;margin:40px;color:#1c1c1e}
+table{border-collapse:collapse;width:100%}th,td{padding:8px 10px;border:1px solid #ddd;text-align:left;font-size:12px}
+th{background:#f2f2f7;font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:.5px}
+tr:nth-child(even){background:#fafafa}h1{font-size:20px}h2{font-size:16px;margin-top:24px}
+.badge-y{background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-size:11px}
+.badge-n{background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;font-size:11px}
+.badge-u{background:#f5f5f5;color:#999;padding:2px 8px;border-radius:10px;font-size:11px}</style></head><body>
+<h1>Adult Day Care Directory</h1><p>Centennial &amp; Aurora, CO | Generated ${new Date().toLocaleDateString()}</p>`;
+
+  const groups = [{label:'Group 1: Within 10 Miles of Home', items:items.filter(d=>d.group===1)},
+                  {label:'Group 2: I-225 Commute Corridor', items:items.filter(d=>d.group===2)}];
+  for (const g of groups) {
+    if (!g.items.length) continue;
+    h += `<h2>${g.label} (${g.items.length})</h2><table><tr><th>Facility</th><th>Address</th><th>Phone</th><th>Hours</th><th>New Patients</th><th>Private Pay</th><th>Distance</th><th>Services</th></tr>`;
+    g.items.forEach(d => {
+      const np = d.new_patients === 'Y' ? '<span class="badge-y">Yes</span>' : d.new_patients === 'N' ? '<span class="badge-n">No</span>' : '<span class="badge-u">Unknown</span>';
+      const pp = d.private_pay === 'Y' ? '<span class="badge-y">Yes</span>' : d.private_pay === 'N' ? '<span class="badge-n">No</span>' : '<span class="badge-u">Unknown</span>';
+      h += `<tr><td><strong>${esc(d.name)}</strong></td><td>${esc(d.address)}</td><td>${esc(d.phone)}</td><td>${esc(d.hours)}</td><td>${np}</td><td>${pp}</td><td>${d.distance_mi} mi</td><td style="max-width:300px;font-size:11px">${esc(d.services)}</td></tr>`;
+    });
+    h += '</table>';
+  }
+  h += '</body></html>';
+  return h;
+}
+
+function generateLaTeX(items) {
+  let tex = `\\documentclass[11pt,landscape]{article}
+\\usepackage[margin=1in]{geometry}
+\\usepackage{booktabs,longtable,hyperref}
+\\usepackage[utf8]{inputenc}
+\\title{Adult Day Care Directory --- Centennial \\& Aurora, CO}
+\\author{Generated by AEPT-AI}
+\\date{${new Date().toLocaleDateString()}}
+\\begin{document}
+\\maketitle
+\\textbf{Home:} ${HOME_ADDR.replace(/&/g,'\\&')} \\\\
+\\textbf{Destination:} ${HOSPITAL_ADDR.replace(/&/g,'\\&')}
+\\vspace{1em}\n\n`;
+
+  const groups = [{label:'Group 1: Within 10 Miles of Home', items:items.filter(d=>d.group===1)},
+                  {label:'Group 2: I-225 Commute Corridor', items:items.filter(d=>d.group===2)}];
+  for (const g of groups) {
+    if (!g.items.length) continue;
+    tex += `\\section*{${g.label} (${g.items.length})}\n`;
+    tex += `\\begin{longtable}{p{3.5cm}p{4cm}p{2.2cm}p{3cm}p{1.5cm}p{1.5cm}p{1.2cm}}\n`;
+    tex += `\\toprule\nFacility & Address & Phone & Hours & New Pts & Pvt Pay & Dist \\\\\n\\midrule\n\\endhead\n`;
+    g.items.forEach(d => {
+      const name = d.name.replace(/&/g,'\\&').replace(/_/g,'\\_').replace(/#/g,'\\#');
+      const addr = d.address.replace(/&/g,'\\&').replace(/_/g,'\\_').replace(/#/g,'\\#');
+      const hrs = d.hours.replace(/&/g,'\\&');
+      tex += `${name} & ${addr} & ${d.phone} & ${hrs} & ${d.new_patients} & ${d.private_pay} & ${d.distance_mi} mi \\\\\n`;
+    });
+    tex += `\\bottomrule\n\\end{longtable}\n\n`;
+  }
+  tex += '\\end{document}\n';
+  return tex;
+}
+
+function generatePDF(items) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'letter' });
+  // Cover
+  doc.setFillColor(0, 122, 255);
+  doc.rect(0, 0, 279.4, 215.9, 'F');
+  doc.setTextColor(255);
+  doc.setFontSize(12);
+  doc.text('ADULT DAY CARE DIRECTORY', 32, 60);
+  doc.setFontSize(28);
+  doc.text('Centennial & Aurora, CO', 32, 80);
+  doc.setFontSize(13);
+  doc.setTextColor(200);
+  doc.text(`${items.length} Facilities | Updated March 2026`, 32, 95);
+  doc.text(`Home: ${HOME_ADDR}`, 32, 110);
+  doc.text(`Generated ${new Date().toLocaleDateString()}`, 32, 120);
+
+  doc.addPage();
+  const rows = items.map(d => [
+    d.group === 1 ? 'Home' : 'Commute',
+    d.name, d.address, d.phone, d.hours,
+    d.new_patients, d.private_pay, d.distance_mi + ' mi'
+  ]);
+  doc.autoTable({
+    head: [['Group','Facility','Address','Phone','Hours','New Pts','Pvt Pay','Dist']],
+    body: rows,
+    startY: 16,
+    styles: { fontSize: 7, cellPadding: 2.5, font: 'helvetica' },
+    headStyles: { fillColor: [0, 122, 255], fontStyle: 'bold', fontSize: 7 },
+    alternateRowStyles: { fillColor: [242, 242, 247] },
+    columnStyles: { 1: { fontStyle: 'bold', cellWidth: 35 }, 2: { cellWidth: 40 } },
+    margin: { left: 10, right: 10 },
+  });
+  return doc.output('blob');
+}
+
+async function runExport() {
+  const items = getSelectedProviders();
+  if (!items.length) { alert('No facilities to export.'); return; }
+
+  const formats = Array.from(document.querySelectorAll('input[name="fmt"]:checked')).map(i => i.value);
+  if (!formats.length) { alert('Select at least one format.'); return; }
+
+  const isZip = formats.includes('zip');
+  const fmts = formats.filter(f => f !== 'zip');
+  if (isZip && !fmts.length) fmts.push('csv','md','json','html','tex','pdf');
+
+  const files = {};
+  if (fmts.includes('csv') || isZip) files['adult-daycare.csv'] = new Blob([generateCSV(items)], {type:'text/csv;charset=utf-8'});
+  if (fmts.includes('md') || isZip) files['adult-daycare.md'] = new Blob([generateMarkdown(items)], {type:'text/markdown;charset=utf-8'});
+  if (fmts.includes('json') || isZip) files['adult-daycare.json'] = new Blob([generateJSON(items)], {type:'application/json;charset=utf-8'});
+  if (fmts.includes('html') || isZip) files['adult-daycare.html'] = new Blob([generateHTML(items)], {type:'text/html;charset=utf-8'});
+  if (fmts.includes('tex') || isZip) files['adult-daycare.tex'] = new Blob([generateLaTeX(items)], {type:'text/plain;charset=utf-8'});
+  if (fmts.includes('pdf') || isZip) files['adult-daycare.pdf'] = generatePDF(items);
+
+  if (isZip) {
+    const zip = new JSZip();
+    for (const [name, blob] of Object.entries(files)) zip.file(name, blob);
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    saveAs(zipBlob, 'adult-daycare-directory.zip');
+  } else {
+    for (const [name, blob] of Object.entries(files)) {
+      if (fmts.includes(name.split('.').pop())) saveAs(blob, name);
+    }
+  }
+  closeExport();
+}
+
+// Toggle export option visual state
+document.querySelectorAll('.export-opt input').forEach(inp => {
+  inp.addEventListener('change', () => { inp.closest('.export-opt').classList.toggle('checked', inp.checked); });
+});
+
+// Search debounce
+let searchTimer;
+document.getElementById('search').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(render, 200);
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeExport();
+  if (e.key === '/' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+    e.preventDefault(); document.getElementById('search').focus();
+  }
+});
+
+// === INIT ===
+render();
+</script>
+</body>
+</html>

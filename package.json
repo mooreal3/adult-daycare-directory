@@ -1,0 +1,12 @@
+{
+  "name": "adult-daycare-directory",
+  "version": "1.0.0",
+  "private": false,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "python build_html.py && python export_all.py",
+    "dev": "python build_html.py && cd public && python -m http.server 3000",
+    "deploy": "vercel --prod"
+  }
+}
